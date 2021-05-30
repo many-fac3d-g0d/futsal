@@ -1,0 +1,17 @@
+{
+  "name": "foosball",
+  "version": "1.0.0",
+  "description": "Foosball multiplayer game",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Vignesh Nandakumar <nviki001@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "sat": "^0.9.0",
+    "socket.io": "^4.1.2"
+  }
+}

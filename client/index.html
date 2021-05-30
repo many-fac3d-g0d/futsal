@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang='en' class=''>
+
+<head>
+
+  <meta charset='UTF-8'>
+  <title>Futsal</title>
+
+  <meta name="robots" content="noindex">
+
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+  <link href='./public/css/style.css' rel='stylesheet' type='text/css'>
+  <script src="https://cdn.socket.io/4.0.1/socket.io.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/1.2.2/velocity.min.js"></script>
+  <script type="text/javascript" defer src="./public/js/futsal.js"></script>
+</head>
+
+<body>
+  <main>
+    <div class="static">
+        <h1 class="js-heading">FUTSAL</h1>
+       <!-- <div class="js-switcher switcher">
+            <a href="#" class="js-switch disabled switch-btn">HOME</a><a href="#" class="js-switch switch-btn">AWAY</a>
+        </div>-->
+    </div>
+    <div class="js-stage stage texture">
+        <div class="js-world world">
+            <div class="team js-team">
+                <!-- Team cards / icons goes here -->
+            </div>
+            <div class="terrain js-terrain">
+                <div class="field ground">
+                    <div class="field__line field__line--goal"></div>
+                    <div class="field__line field__line--goal field__line--goal--far"></div>
+                    <div class="field__line field__line--outline"></div>
+                    <div class="field__line field__line--penalty"></div>
+                    <div class="field__line field__line--penalty-arc"></div>
+                    <div class="field__line field__line--penalty-arc field__line--penalty-arc--far"></div>
+                    <div class="field__line field__line--mid"></div>
+                    <div class="field__line field__line--circle"></div>
+                    <div class="field__line field__line--penalty field__line--penalty--far"></div>
+                    <canvas id="futsalCanvas" width="672" height="840"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="loading js-loading">
+                <div class="join-game">
+                    <label for="player-name">Player Name :</label>
+                    <input type="text" id="player-name" name="player-name" class="player-name"/>
+                </div>
+                <div class="join-game">
+                    <label for="room-name">Stadium Name :</label>
+                    <input type="text" id="room-name" name="room-name" class="room-name"/>
+                </div>
+                <div class="join-game">
+                    <label for="team-name">Join Team :</label>
+                    <input type="text" id="team-name" name="team-name" class="team-name"/>
+                </div>
+                <button id="join-btn" class="join-btn">Play</button>
+        </div>
+    </div>
+    </main>
+  
+</body>
+
+</html>
