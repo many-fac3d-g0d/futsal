@@ -23,10 +23,20 @@ $switcher = null;
 var canvas = $('#futsalCanvas')[0];
 var ctx = canvas.getContext('2d');
 var homePlayer = new Image();
-var awayPlayer = new Image();
+var homePlayer1 = new Image();
+var homePlayer2 = new Image();
 
-homePlayer.src = './public/img/manu.png';
-awayPlayer.src = './public/img/manc.png';
+var awayPlayer = new Image();
+var awayPlayer1 = new Image();
+var awayPlayer2 = new Image();
+
+homePlayer.src = './public/img/home.png';
+homePlayer1.src = './public/img/home1.png';
+homePlayer2.src = './public/img/home2.png';
+
+awayPlayer.src = './public/img/away.png';
+awayPlayer1.src = './public/img/away1.png';
+awayPlayer2.src = './public/img/away2.png';
 
 let playerName = '';
 let stadiumName = '';
@@ -259,8 +269,8 @@ let teamName = '';
   function draw(stad){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall(stad.ball);
-    drawHomePlayers(stad.homePlayers);
-    drawAwayPlayers(stad.awayPlayers);
+    drawHomePlayers(stad.homePlayers, stad.gameStart);
+    drawAwayPlayers(stad.awayPlayers, stad.gameStart);
   }
 
   function drawBall(Ball){
@@ -271,23 +281,72 @@ let teamName = '';
     ctx.closePath();
   }
 
-  function drawHomePlayers(homePlayers){
+  function drawHomePlayers(homePlayers, gameStart){
+    if(!gameStart){ // Player wont run if the game is not started
       homePlayers.forEach((player, index) => {
         ctx.drawImage(homePlayer, player.posX, player.posY, 80, 100);
         //ctx.fillRect(player.posX, player.posY, 40, 80)
         ctx.font = "15px Charlie Sans";
-        ctx.fillText(player.playerName, player.posX+28, player.posY+105);
+        ctx.fillText(player.playerName.substring(0,4), player.posX+28, player.posY+105);
       });
+    }else{
+      let randomNo = Math.floor(Math.random() * 10);
+      homePlayers.forEach((player, index) => {
+        // reduce running animation speed by random draw
+        switch(randomNo){
+          case 0: ctx.drawImage(homePlayer1, player.posX, player.posY, 80, 100);
+                  break;
+          case 1: ctx.drawImage(homePlayer1, player.posX, player.posY, 80, 100);
+                  break;
+          case 2: ctx.drawImage(homePlayer1, player.posX, player.posY, 80, 100);
+                  break;
+          case 3: ctx.drawImage(homePlayer1, player.posX, player.posY, 80, 100);
+                  break;
+          default: ctx.drawImage(homePlayer2, player.posX, player.posY, 80, 100);
+        }
+          
+        //ctx.fillRect(player.posX, player.posY, 40, 80)
+        ctx.font = "15px Charlie Sans";
+        ctx.fillText(player.playerName.substring(0,4), player.posX+28, player.posY+105);
+      });
+    }
   }
 
-  function drawAwayPlayers(awayPlayers){
+  function drawAwayPlayers(awayPlayers, gameStart){
+    if(!gameStart){
       awayPlayers.forEach((player, index) => {
         ctx.drawImage(awayPlayer, player.posX, player.posY, 80, 100);
         //ctx.fillRect(player.posX, player.posY, 40, 80)
         ctx.font = "15px Charlie Sans";
-        ctx.fillText(player.playerName, player.posX+28, player.posY+105);
+        ctx.fillText(player.playerName.substring(0,4), player.posX+28, player.posY+105);
       });
+    }else{
+      let randomNo = Math.floor(Math.random() * 2);
+      awayPlayers.forEach((player, index) => {
+        switch(randomNo){
+          case 0: ctx.drawImage(awayPlayer1, player.posX, player.posY, 80, 100);
+                  break;
+          case 1: ctx.drawImage(awayPlayer1, player.posX, player.posY, 80, 100);
+                  break;
+          case 2: ctx.drawImage(awayPlayer1, player.posX, player.posY, 80, 100);
+                  break;
+          case 3: ctx.drawImage(awayPlayer1, player.posX, player.posY, 80, 100);
+                  break;
+          default: ctx.drawImage(awayPlayer2, player.posX, player.posY, 80, 100);
+        }
+        //ctx.fillRect(player.posX, player.posY, 40, 80)
+        ctx.font = "15px Charlie Sans";
+        ctx.fillText(player.playerName.substring(0,4), player.posX+28, player.posY+105);
+      });
+    }
   }
+
+  $(".play-image").mouseenter(function(){//game-controller animation on hover
+    $(this)
+      .velocity({ translateY: "-20px", rotateZ: "10deg" }, 100, "easeOut")
+      .velocity({ rotateZ: "-8deg" }, 150)
+      .velocity({ translateY: "0", rotateZ: "0" }, {duration: 600, easing: [ 500, 14 ]});
+  });
 
   $('#join-btn').bind('click',() => {
 
@@ -295,9 +354,11 @@ let teamName = '';
     stadiumName = $('#room-name').val();
     teamName = $('#team-name').val();
 
-    //console.log(playerName, stadiumName, teamName);
-
-    socket.emit('create', playerName, stadiumName, teamName);
+    console.log(playerName, stadiumName, teamName);
+    if(!playerName || !stadiumName || !teamName)
+      window.alert("Pls provide all three fields");
+    else
+      socket.emit('create', playerName, stadiumName, teamName);
   });
 
   $(document).keydown((e) => {
@@ -322,6 +383,30 @@ let teamName = '';
 
   });
 
+  $('.arrow-key').bind('click',(event)=>{
+    let keyClicked = event.target.attributes['data-key'].value;
+    //console.log("Clicked ",keyClicked);
+
+    switch(keyClicked){
+      case '37': // left
+              socket.emit('move', 'left', playerName, stadiumName, teamName);
+              break;
+
+        case '38': // up
+              socket.emit('move', 'up', playerName, stadiumName, teamName);
+              break;
+
+        case '39': // right
+              socket.emit('move', 'right', playerName, stadiumName, teamName);
+              break;
+        case '40': // down
+              socket.emit('move', 'down', playerName, stadiumName, teamName);
+              break;
+        default:
+               return; // exit for other keys
+    }
+  });
+
   socket.on('new-player', (stad, startFlag) => {
     console.log(stad, startFlag);
 
@@ -332,7 +417,7 @@ let teamName = '';
   });
 
   socket.on('move-player', (stad) => {
-    window.requestAnimationFrame(draw(stad));
+    draw(stad);
   })
 
   socket.on('create-error', (msg, teams, teamName) => {
@@ -347,5 +432,5 @@ let teamName = '';
   });
 
   socket.on('update-ball', (stad) =>{
-    window.requestAnimationFrame(draw(stad));
+    draw(stad);
   });

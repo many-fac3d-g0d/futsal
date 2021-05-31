@@ -88,6 +88,7 @@ class Player{
 class Stadium{
     constructor(name){
         this.name = name;
+        this.gameStart = false;
         this.homePlayers = [];
         this.awayPlayers = [];
         this.teams = [];
@@ -125,10 +126,14 @@ class Stadium{
     }
 
     canGameStart(){
-        if((this.homePlayers.length + this.awayPlayers.length) === 3)
-            return true;
-        else
-            return false;
+        if((this.homePlayers.length + this.awayPlayers.length) === 3){
+            this.gameStart = true;
+            return this.gameStart;
+        }
+        else{
+            this.gameStart = false;
+            return this.gameStart;
+        }
     }
 }
 
@@ -242,14 +247,14 @@ setInterval(() =>{
             let box = new SAT.Box(new SAT.Vector(player.posX, player.posY), player.playerWidth, player.playerHeight).toPolygon();
             if (SAT.testPolygonCircle(box, circle, response)){
                 collided = 1;
-                //console.log("Collision detected with home player: ",player.playerName);
+                console.log("Collision detected with home player: ",response);
             }
         }
         for(let player of stad.awayPlayers){
             let box = new SAT.Box(new SAT.Vector(player.posX, player.posY), player.playerWidth, player.playerHeight).toPolygon();
             if (SAT.testPolygonCircle(box, circle, response)){
                 collided = 1;
-                //console.log("Collision detected with away player: ",player.playerName);
+                console.log("Collision detected with away player: ",response);
             }
         }
         stad.ball.updateBall(collided);

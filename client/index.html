@@ -43,7 +43,14 @@
                     <div class="field__line field__line--circle"></div>
                     <div class="field__line field__line--penalty field__line--penalty--far"></div>
                     <canvas id="futsalCanvas" width="672" height="840"></canvas>
+                    <div class="arrow-key-container">
+                        <div class="arrow-key up" id="arrow-up" data-key="38"></div><br>
+                        <div class="arrow-key left" id="arrow-left" data-key="37"></div>
+                        <div class="arrow-key down" id="arrow-down" data-key="40"></div>
+                        <div class="arrow-key right" id="arrow-right" data-key="39"></div>
+                      </div>
                 </div>
+                
             </div>
         </div>
         <div class="loading js-loading">
@@ -59,7 +66,22 @@
                     <label for="team-name">Join Team :</label>
                     <input type="text" id="team-name" name="team-name" class="team-name"/>
                 </div>
-                <button id="join-btn" class="join-btn">Play</button>
+                <button id="join-btn" class="join-btn">
+                    <div class="play-image">
+                        <img src="public/img/black-game-controller.png"/>
+                    </div>
+                </button>
+
+                <div class="instructions">
+                    <ul>
+                        <li> This is a one touch futsal game with standard futsal rules </li>
+                        <li> Host your won game by creating a unique stadium name and share it with your friends </li>
+                        <li> Or join your friend's game by using the stadium name created already</li>
+                        <li> Max of 2 teams can play in a single stadium</li>
+                        <li> Each team can have 3 players</li>
+                        
+                    </ul>
+                </div>
         </div>
     </div>
     </main>
