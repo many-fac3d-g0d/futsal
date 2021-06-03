@@ -1,6 +1,6 @@
 const socket = io();
 
-var $heading, $loading, $stage, $subHeading, $switchBtn, $switcher, $team, $terrain, $world, data, init;
+var $heading, $loading, $stage, $subHeading, $terrain, $world, data, init;
 
 $stage = null;
 
@@ -8,17 +8,11 @@ $world = null;
 
 $terrain = null;
 
-$team = null;
-
-$switchBtn = null;
-
 $heading = null;
 
 $subHeading = null;
 
 $loading = null;
-
-$switcher = null;
 
 var canvas = $('#futsalCanvas')[0];
 var ctx = canvas.getContext('2d');
@@ -41,6 +35,18 @@ awayPlayer2.src = './public/img/away2.png';
 let playerName = '';
 let stadiumName = '';
 let teamName = '';
+
+
+let myJoyStick = {
+  zone: document.getElementById('my-joystick'),
+  mode: 'static',
+  position: {
+    left: '50%',
+    top: '110%' },
+
+  size: 80 * 2,
+  color: 'black' 
+};
 
   class state {
    static home = true;
@@ -72,33 +78,8 @@ let teamName = '';
     }
   };
 
-  class events {
-     static attachAll() {
-      $switchBtn.on('click', function(e) {
-        var $el;
-        e.preventDefault();
-        $el = $(this);
-        if ($el.hasClass('disabled')) {
-          return;
-        }
-        scenes.switchSides();
-        $switchBtn.removeClass('disabled');
-        return $el.addClass('disabled');
-      });
-    }
-     /*static attachClose() {
-      return $stage.one('click', function(e) {
-        e.preventDefault();
-        return scenes.unfocusPlayer();
-      });
-    }*/
-  };
-
   class scenes{
      static preLoad() {
-      $switcher.velocity({
-        opacity: 0
-      }, 0);
       $heading.velocity({
         opacity: 1
       }, 0);
@@ -136,12 +117,9 @@ let teamName = '';
       $world.css('display', 'block');
       anim.fadeInDir($heading, 300, delay + 600, 0, 30);
       anim.fadeInDir($subHeading, 300, delay + 800, 0, 30);
-      anim.fadeInDir($switcher, 300, delay + 900, 0, 30);
     }
      static startLoading(){
-      var images;
       anim.fadeInDir($loading, 300, 0, 0, -20);
-      images = [];
       //anim.fadeOutDir($loading, 300, 1000, 0, -20);
       //scenes.loadIn(1600);
     }
@@ -247,18 +225,14 @@ let teamName = '';
   init = function() {
     $stage = $('.js-stage');
     $world = $('.js-world');
-    $switchBtn = $('.js-switch');
     $heading = $('.js-heading');
-    $switcher = $('.js-switcher');
     $subHeading = $('.js-subheading');
     $terrain = $('.js-terrain');
-    $team = $('.js-team');
     $loading = $('.js-loading');
     //dom.addPlayers('home');
     //dom.addPlayers('away');
     scenes.preLoad();
     //scenes.arrangePlayers();
-    events.attachAll();
     scenes.startLoading();
   };
 
@@ -268,20 +242,40 @@ let teamName = '';
 
   function draw(stad){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawGoalPost(stad.homeGoalPost, stad.awayGoalPost, stad.teams);
     drawBall(stad.ball);
     drawHomePlayers(stad.homePlayers, stad.gameStart);
     drawAwayPlayers(stad.awayPlayers, stad.gameStart);
   }
 
+  function drawGoalPost(homeGoalPost, awayGoalPost, teams){
+    ctx.fillStyle = 'gray';
+    ctx.font = "15px Charlie Sans";
+
+    ctx.fillRect(homeGoalPost[0], homeGoalPost[1], canvas.width/3, 20);
+    ctx.fillRect(awayGoalPost[0], awayGoalPost[1], canvas.width/3, 20);
+
+    ctx.fillStyle = 'white';
+
+    if(teams[0])
+      ctx.fillText(teams[0].toUpperCase(),homeGoalPost[0] + canvas.width/9 , homeGoalPost[1] + 15);
+
+    if(teams[1])
+      ctx.fillText(teams[1].toUpperCase(), awayGoalPost[0] + canvas.width/9, awayGoalPost[1] - 15);
+  }
+
   function drawBall(Ball){
+    ctx.fillStyle = 'white';
     ctx.beginPath();
     ctx.arc(Ball.posX, Ball.posY, 13, 0, Math.PI*2);
     ctx.fillStyle = "#FFFFFF";
     ctx.fill();
     ctx.closePath();
+    //ctx.fillText(`${Ball.posX}, ${Ball.posY}`, Ball.posX+10, Ball.posY+10);
   }
 
   function drawHomePlayers(homePlayers, gameStart){
+    gameStart = true;
     if(!gameStart){ // Player wont run if the game is not started
       homePlayers.forEach((player, index) => {
         ctx.drawImage(homePlayer, player.posX, player.posY, 80, 100);
@@ -293,17 +287,11 @@ let teamName = '';
       let randomNo = Math.floor(Math.random() * 10);
       homePlayers.forEach((player, index) => {
         // reduce running animation speed by random draw
-        switch(randomNo){
-          case 0: ctx.drawImage(homePlayer1, player.posX, player.posY, 80, 100);
-                  break;
-          case 1: ctx.drawImage(homePlayer1, player.posX, player.posY, 80, 100);
-                  break;
-          case 2: ctx.drawImage(homePlayer1, player.posX, player.posY, 80, 100);
-                  break;
-          case 3: ctx.drawImage(homePlayer1, player.posX, player.posY, 80, 100);
-                  break;
-          default: ctx.drawImage(homePlayer2, player.posX, player.posY, 80, 100);
-        }
+          if(randomNo < 5)
+            ctx.drawImage(homePlayer1, player.posX, player.posY, 80, 100);
+          else
+            ctx.drawImage(homePlayer2, player.posX, player.posY, 80, 100);
+        
           
         //ctx.fillRect(player.posX, player.posY, 40, 80)
         ctx.font = "15px Charlie Sans";
@@ -313,6 +301,7 @@ let teamName = '';
   }
 
   function drawAwayPlayers(awayPlayers, gameStart){
+    gameStart = true;
     if(!gameStart){
       awayPlayers.forEach((player, index) => {
         ctx.drawImage(awayPlayer, player.posX, player.posY, 80, 100);
@@ -321,19 +310,12 @@ let teamName = '';
         ctx.fillText(player.playerName.substring(0,4), player.posX+28, player.posY+105);
       });
     }else{
-      let randomNo = Math.floor(Math.random() * 2);
+      let randomNo = Math.floor(Math.random() * 10);
       awayPlayers.forEach((player, index) => {
-        switch(randomNo){
-          case 0: ctx.drawImage(awayPlayer1, player.posX, player.posY, 80, 100);
-                  break;
-          case 1: ctx.drawImage(awayPlayer1, player.posX, player.posY, 80, 100);
-                  break;
-          case 2: ctx.drawImage(awayPlayer1, player.posX, player.posY, 80, 100);
-                  break;
-          case 3: ctx.drawImage(awayPlayer1, player.posX, player.posY, 80, 100);
-                  break;
-          default: ctx.drawImage(awayPlayer2, player.posX, player.posY, 80, 100);
-        }
+        if(randomNo < 5)
+        ctx.drawImage(awayPlayer1, player.posX, player.posY, 80, 100);
+      else
+        ctx.drawImage(awayPlayer2, player.posX, player.posY, 80, 100);
         //ctx.fillRect(player.posX, player.posY, 40, 80)
         ctx.font = "15px Charlie Sans";
         ctx.fillText(player.playerName.substring(0,4), player.posX+28, player.posY+105);
@@ -383,35 +365,32 @@ let teamName = '';
 
   });
 
-  $('.arrow-key').bind('click',(event)=>{
-    let keyClicked = event.target.attributes['data-key'].value;
-    //console.log("Clicked ",keyClicked);
 
-    switch(keyClicked){
-      case '37': // left
-              socket.emit('move', 'left', playerName, stadiumName, teamName);
-              break;
 
-        case '38': // up
-              socket.emit('move', 'up', playerName, stadiumName, teamName);
-              break;
-
-        case '39': // right
-              socket.emit('move', 'right', playerName, stadiumName, teamName);
-              break;
-        case '40': // down
-              socket.emit('move', 'down', playerName, stadiumName, teamName);
-              break;
-        default:
-               return; // exit for other keys
-    }
-  });
+let joystick = nipplejs.create(myJoyStick);
+console.log("My joystick ",joystick);
+joystick.on('move',(event, data) => {
+  if('direction' in data){ //Prevent uncaught exceptions if direction attribute is not present on move
+    console.log("Dir ",data.direction.angle);
+    socket.emit('move', data.direction.angle, playerName, stadiumName, teamName);
+  }
+});
 
   socket.on('new-player', (stad, startFlag) => {
     console.log(stad, startFlag);
 
     anim.fadeOutDir($loading, 300, 1000, 0, -20);
     scenes.loadIn(1600);
+    if(stad.teams[0]){
+      homeTeam = document.getElementById('home-team').getElementsByTagName('h2');
+      homeTeam[0].innerText = stad.teams[0].toUpperCase() + " (Home)";
+    }
+    if(stad.teams[1]){
+      awayTeam = document.getElementById('away-team').getElementsByTagName('h2');
+      awayTeam[0].innerText = stad.teams[1].toUpperCase() + " (Away)";
+    }
+
+
     draw(stad);
 
   });
@@ -433,4 +412,28 @@ let teamName = '';
 
   socket.on('update-ball', (stad) =>{
     draw(stad);
+  });
+
+  socket.on('goal', (stad, teamScored) => {
+    $(`#${teamScored}`).append(`<p>${stad.lastTouch} ("${stad.fullTime})</p>`); //Update goal scorer and time in sec
+    score = document.getElementById('score').getElementsByTagName('h1');
+    score[0].innerText = `${stad.scoreBoard[0]} - ${stad.scoreBoard[1]}`;//Update scoreboard
+  });
+
+  socket.on('time', (fullTime) => {
+    let min = Math.floor(fullTime/60);
+    let sec = fullTime%60;
+    clock = document.getElementById('clock').getElementsByTagName('h2');
+    if(sec < 10)
+      clock[0].innerText = `0${min} : 0${sec}`;
+    else
+      clock[0].innerText = `0${min} : ${sec}`;
+  });
+
+  socket.on('win-loss', (winner) => {
+    window.alert(`Team ${winner} has won the game `);
+  });
+
+  socket.on('tied', (teams) => {
+    window.alert(`Game tied `);
   });

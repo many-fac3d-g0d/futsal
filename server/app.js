@@ -1,4 +1,3 @@
-const fs = require('fs');
 const socketIO = require('socket.io');
 const express = require('express');
 const path = require('path');
@@ -10,7 +9,6 @@ const app = express();
 
 let canvasWidth = 672;
 let canvasHeight = 840;
-
 let activeStadiums = [];
 
 class Ball{
@@ -21,6 +19,11 @@ class Ball{
         this.dx = 2;
         this.dy = -2;
     }
+
+    setInitialPos(){
+        this.posX = canvasWidth/2;
+        this.posY = canvasHeight/2;
+    }
     updateBall(collided){
         if(collided){
             this.dx = -this.dx;
@@ -29,7 +32,7 @@ class Ball{
         }
         if( (this.posX + this.dx > canvasWidth - this.radius) || (this.posX + this.dx < this.radius ))
             this.dx = -this.dx;
-        if( (this.posY + this.dy > canvasHeight - this.radius) || (this.posY + this.dy < this.radius ))
+        if( (this.posY + this.dy > canvasHeight) || (this.posY + this.dy < 0 ))
             this.dy = -this.dy;
         
         this.posX = this.posX + this.dx;
@@ -51,21 +54,25 @@ class Player{
         this.dy = 8;
     }
 
-    updatePos(){
+    setInitialPos(){
         this.posX = Math.random() * ((canvasWidth - 100) - 100) + 100;
         this.posY = Math.random() * ((canvasHeight - 100) - 100) + 100;
     }
 
     move(direction){
         switch(direction){
-            case 'left': this.posX = this.posX - this.dx;
-                            break;
-            case 'right': this.posX = this.posX + this.dx;
-                            break;
-            case 'up': this.posY = this.posY - this.dy;
-                            break;
-            case 'down': this.posY = this.posY + this.dy;
-                            break;
+            case 'left': if(this.posX - this.dx + 40 > 0) // Restrict movement only within canvas (half of player's body can be outside by intent :)
+                            this.posX = this.posX - this.dx;
+                        break;
+            case 'right': if(this.posX + this.dx + 40 < canvasWidth)
+                            this.posX = this.posX + this.dx;
+                        break;
+            case 'up': if(this.posY - this.dy + 40 > 0)
+                            this.posY = this.posY - this.dy;
+                        break;
+            case 'down': if(this.posY + this.dy + 40 < canvasHeight)
+                            this.posY = this.posY + this.dy;
+                        break;
             default:  return;
         }
     }
@@ -89,10 +96,17 @@ class Stadium{
     constructor(name){
         this.name = name;
         this.gameStart = false;
+        this.gameOver = false;
         this.homePlayers = [];
         this.awayPlayers = [];
         this.teams = [];
         this.ball = new Ball();
+        this.scoreBoard = [0, 0];
+        this.lastTouch = 'N/A';
+        this.fullTime = 120;
+        this.homeGoalPost = [canvasWidth/3, 0];
+        this.awayGoalPost = [canvasWidth/3, canvasHeight-20];
+
     }
 
     addTeam(teamName){
@@ -110,13 +124,13 @@ class Stadium{
     }
     addPlayer(player, teamName){
         if(teamName === this.teams[0]){ //check homeTeam count and add Player to game
-            if(this.homePlayers.length < 5){
+            if(this.homePlayers.length < 3){
                 this.homePlayers.push(player);
                 return 1;
             }else
                 return 0;
         }else if(teamName === this.teams[1]){
-            if(this.awayPlayers.length < 5){
+            if(this.awayPlayers.length < 3){
                 this.awayPlayers.push(player);
                 return 1;
             }else
@@ -126,7 +140,7 @@ class Stadium{
     }
 
     canGameStart(){
-        if((this.homePlayers.length + this.awayPlayers.length) === 3){
+        if(((this.homePlayers.length + this.awayPlayers.length) === 6) && !(this.gameOver)){
             this.gameStart = true;
             return this.gameStart;
         }
@@ -134,6 +148,31 @@ class Stadium{
             this.gameStart = false;
             return this.gameStart;
         }
+    }
+
+    checkGoal(){
+        if(this.ball.posX >= canvasWidth/3 && this.ball.posX <= 2*canvasWidth/3){
+            if(this.ball.posY === 0){
+                console.log(" Away team scored");
+                this.scoreBoard[1] = this.scoreBoard[1] + 1;
+                return "away-team";
+            }
+            if(this.ball.posY === canvasHeight){
+                console.log(" Home team scored");
+                this.scoreBoard[0] = this.scoreBoard[0] + 1;
+                return "home-team";
+            }
+        }
+        return false;
+    }
+
+    whichTeamWon(){
+        if(this.scoreBoard[0] > this.scoreBoard[1])
+            return 0;
+        else if(this.scoreBoard[0] < this.scoreBoard[1])
+            return 1;
+        else    
+            return 2;
     }
 }
 
@@ -158,7 +197,7 @@ io.on('connection',(socket) => {
 
         console.log(playerName, stadiumName, teamName);
         let newPlayer = new Player(playerName, teamName, stadiumName, socket.id);
-        newPlayer.updatePos();
+        newPlayer.setInitialPos();
         let newStadium = true;
 
         activeStadiums.forEach((stad, index) => {
@@ -240,24 +279,56 @@ io.on('connection',(socket) => {
 
 setInterval(() =>{
     activeStadiums.forEach((stad, index) =>{
-        let circle = new SAT.Circle(new SAT.Vector(stad.ball.posX, stad.ball.posY), stad.ball.radius);
-        let response = new SAT.Response(); 
-        let collided = 0;
-        for(let player of stad.homePlayers){
-            let box = new SAT.Box(new SAT.Vector(player.posX, player.posY), player.playerWidth, player.playerHeight).toPolygon();
-            if (SAT.testPolygonCircle(box, circle, response)){
-                collided = 1;
-                console.log("Collision detected with home player: ",response);
+        if(stad.canGameStart()){
+            let circle = new SAT.Circle(new SAT.Vector(stad.ball.posX, stad.ball.posY), stad.ball.radius);
+            let response = new SAT.Response(); 
+            let collided = 0;
+            for(let player of stad.homePlayers){
+                let box = new SAT.Box(new SAT.Vector(player.posX, player.posY), player.playerWidth, player.playerHeight).toPolygon();
+                if (SAT.testPolygonCircle(box, circle, response)){
+                    collided = 1;
+                    stad.lastTouch = player.playerName; // update last player to touch the ball to update in case of goal
+                    //console.log("Collision detected with home player: ",response);
+                }
+            }
+            for(let player of stad.awayPlayers){
+                let box = new SAT.Box(new SAT.Vector(player.posX, player.posY), player.playerWidth, player.playerHeight).toPolygon();
+                if (SAT.testPolygonCircle(box, circle, response)){
+                    collided = 1;
+                    stad.lastTouch = player.playerName;
+                    //console.log("Collision detected with away player: ",response);
+                }
+            }
+            teamScored = stad.checkGoal();
+            if(teamScored){
+                stad.ball.setInitialPos();
+                io.in(stad.name).emit('goal', stad, teamScored);
+                stad.lastTouch = 'N/A';
+            }else{   
+                stad.ball.updateBall(collided);
+                io.in(stad.name).emit('update-ball', stad);
             }
         }
-        for(let player of stad.awayPlayers){
-            let box = new SAT.Box(new SAT.Vector(player.posX, player.posY), player.playerWidth, player.playerHeight).toPolygon();
-            if (SAT.testPolygonCircle(box, circle, response)){
-                collided = 1;
-                console.log("Collision detected with away player: ",response);
-            }
-        }
-        stad.ball.updateBall(collided);
-        io.in(stad.name).emit('update-ball',stad);
     });
 },10);
+
+setInterval(() =>{
+    activeStadiums.forEach((stad, index) =>{
+        if(stad.canGameStart()){
+            io.in(stad.name).emit('time',stad.fullTime);
+            if(stad.fullTime === 0){
+                stad.gameOver = true;
+                switch(stad.whichTeamWon()){
+                    case 0 : io.in(stad.name).emit('win-loss', stad.teams[0]);
+                             break;
+                    case 1 : io.in(stad.name).emit('win-loss', stad.teams[1]);
+                             break;
+                    case 2 : io.in(stad.name).emit('tied', stad.teams);
+                             break;
+                    default : return;
+                }
+            }
+            stad.fullTime = stad.fullTime - 1;
+        }
+    });
+},1000);
