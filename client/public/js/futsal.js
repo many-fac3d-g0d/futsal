@@ -258,10 +258,11 @@ let myJoyStick = {
   }
 
   function drawGoalPost(homeGoalPost, awayGoalPost, teams){
-    ctx.fillStyle = 'gray';
+    
     ctx.font = "15px Charlie Sans";
-
+    ctx.fillStyle = '#d3342c';
     ctx.fillRect(homeGoalPost[0], homeGoalPost[1], canvas.width/3, 20);
+    ctx.fillStyle = '#2b44b4';
     ctx.fillRect(awayGoalPost[0], awayGoalPost[1], canvas.width/3, 20);
 
     ctx.fillStyle = 'white';
@@ -336,6 +337,13 @@ let myJoyStick = {
   }
 
   $(".play-image").mouseenter(function(){//game-controller animation on hover
+    $(this)
+      .velocity({ translateY: "-20px", rotateZ: "10deg" }, 100, "easeOut")
+      .velocity({ rotateZ: "-8deg" }, 150)
+      .velocity({ translateY: "0", rotateZ: "0" }, {duration: 600, easing: [ 500, 14 ]});
+  });
+
+  $(".play-image").on("touchstart",function(){//game-controller animation on hover for touch screens
     $(this)
       .velocity({ translateY: "-20px", rotateZ: "10deg" }, 100, "easeOut")
       .velocity({ rotateZ: "-8deg" }, 150)
