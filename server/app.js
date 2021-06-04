@@ -48,6 +48,7 @@ class Player{
         this.playerHeight = 80;
         this.stadiumName = stadiumName;
         this.socketId = socketId;
+        this.GOAT = false;
         this.posX = null;
         this.posY = null;
         this.dx = 8;
@@ -89,6 +90,11 @@ class Player{
                          break;
             default:  return;
         }
+    }
+
+    isGoat(){
+        if(this.playerName.toLowerCase() === 'messi' || this.playerName.toLowerCase() === 'viki')
+            this.GOAT = true;
     }
 }
 
@@ -180,8 +186,8 @@ class Stadium{
 app.use(express.static(path.join(__dirname, '../client/')));
 console.log(path.join(__dirname, '../client/'));
 
-const server = app.listen((process.env.PORT || 9999),()=>{
-    console.log("Server started at http://localhost:9999/");
+const server = app.listen(port,()=>{
+    console.log(`Server started at http://localhost:${port}/`);
 });
 
 app.get('/', (req, res) => { 
@@ -198,6 +204,7 @@ io.on('connection',(socket) => {
         console.log(playerName, stadiumName, teamName);
         let newPlayer = new Player(playerName, teamName, stadiumName, socket.id);
         newPlayer.setInitialPos();
+        newPlayer.isGoat();
         let newStadium = true;
 
         activeStadiums.forEach((stad, index) => {

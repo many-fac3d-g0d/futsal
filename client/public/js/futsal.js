@@ -24,6 +24,10 @@ var awayPlayer = new Image();
 var awayPlayer1 = new Image();
 var awayPlayer2 = new Image();
 
+var goatPlayer = new Image();
+var goatPlayer1 = new Image();
+var goatPlayer2 = new Image();
+
 homePlayer.src = './public/img/home.png';
 homePlayer1.src = './public/img/home1.png';
 homePlayer2.src = './public/img/home2.png';
@@ -31,6 +35,11 @@ homePlayer2.src = './public/img/home2.png';
 awayPlayer.src = './public/img/away.png';
 awayPlayer1.src = './public/img/away1.png';
 awayPlayer2.src = './public/img/away2.png';
+
+goatPlayer.src = './public/img/goat.png';
+goatPlayer1.src = './public/img/goat1.png';
+goatPlayer2.src = './public/img/goat2.png';
+
 
 let playerName = '';
 let stadiumName = '';
@@ -244,8 +253,8 @@ let myJoyStick = {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawGoalPost(stad.homeGoalPost, stad.awayGoalPost, stad.teams);
     drawBall(stad.ball);
-    drawHomePlayers(stad.homePlayers, stad.gameStart);
-    drawAwayPlayers(stad.awayPlayers, stad.gameStart);
+    drawHomePlayers(stad.homePlayers);
+    drawAwayPlayers(stad.awayPlayers);
   }
 
   function drawGoalPost(homeGoalPost, awayGoalPost, teams){
@@ -261,7 +270,7 @@ let myJoyStick = {
       ctx.fillText(teams[0].toUpperCase(),homeGoalPost[0] + canvas.width/9 , homeGoalPost[1] + 15);
 
     if(teams[1])
-      ctx.fillText(teams[1].toUpperCase(), awayGoalPost[0] + canvas.width/9, awayGoalPost[1] - 15);
+      ctx.fillText(teams[1].toUpperCase(), awayGoalPost[0] + canvas.width/9, awayGoalPost[1] + 15);
   }
 
   function drawBall(Ball){
@@ -274,53 +283,56 @@ let myJoyStick = {
     //ctx.fillText(`${Ball.posX}, ${Ball.posY}`, Ball.posX+10, Ball.posY+10);
   }
 
-  function drawHomePlayers(homePlayers, gameStart){
-    gameStart = true;
-    if(!gameStart){ // Player wont run if the game is not started
-      homePlayers.forEach((player, index) => {
-        ctx.drawImage(homePlayer, player.posX, player.posY, 80, 100);
-        //ctx.fillRect(player.posX, player.posY, 40, 80)
-        ctx.font = "15px Charlie Sans";
-        ctx.fillText(player.playerName.substring(0,4), player.posX+28, player.posY+105);
-      });
-    }else{
+  function drawHomePlayers(homePlayers){
+    
       let randomNo = Math.floor(Math.random() * 10);
       homePlayers.forEach((player, index) => {
         // reduce running animation speed by random draw
-          if(randomNo < 5)
-            ctx.drawImage(homePlayer1, player.posX, player.posY, 80, 100);
-          else
-            ctx.drawImage(homePlayer2, player.posX, player.posY, 80, 100);
+          if(randomNo < 5){
+            if(player.GOAT)
+              ctx.drawImage(goatPlayer1, player.posX, player.posY, 80, 100);
+            else
+              ctx.drawImage(homePlayer1, player.posX, player.posY, 80, 100);
+          }
+          else{
+            if(player.GOAT)
+              ctx.drawImage(goatPlayer2, player.posX, player.posY, 80, 100);
+            else
+              ctx.drawImage(homePlayer2, player.posX, player.posY, 80, 100);
+          }
         
           
         //ctx.fillRect(player.posX, player.posY, 40, 80)
         ctx.font = "15px Charlie Sans";
-        ctx.fillText(player.playerName.substring(0,4), player.posX+28, player.posY+105);
+        if(player.GOAT)
+          ctx.fillText(player.playerName.substring(0,7) + " 🐐", player.posX+28, player.posY+105);
+        else
+          ctx.fillText(player.playerName.substring(0,7), player.posX+28, player.posY+105);
       });
-    }
   }
 
-  function drawAwayPlayers(awayPlayers, gameStart){
-    gameStart = true;
-    if(!gameStart){
-      awayPlayers.forEach((player, index) => {
-        ctx.drawImage(awayPlayer, player.posX, player.posY, 80, 100);
-        //ctx.fillRect(player.posX, player.posY, 40, 80)
-        ctx.font = "15px Charlie Sans";
-        ctx.fillText(player.playerName.substring(0,4), player.posX+28, player.posY+105);
-      });
-    }else{
+  function drawAwayPlayers(awayPlayers){
       let randomNo = Math.floor(Math.random() * 10);
       awayPlayers.forEach((player, index) => {
-        if(randomNo < 5)
-        ctx.drawImage(awayPlayer1, player.posX, player.posY, 80, 100);
-      else
-        ctx.drawImage(awayPlayer2, player.posX, player.posY, 80, 100);
+        if(randomNo < 5){
+          if(player.GOAT)
+            ctx.drawImage(goatPlayer1, player.posX, player.posY, 80, 100);
+          else
+            ctx.drawImage(awayPlayer1, player.posX, player.posY, 80, 100);
+        }
+      else{
+        if(player.GOAT)
+          ctx.drawImage(goatPlayer2, player.posX, player.posY, 80, 100);
+        else
+          ctx.drawImage(awayPlayer2, player.posX, player.posY, 80, 100);
+      }
         //ctx.fillRect(player.posX, player.posY, 40, 80)
         ctx.font = "15px Charlie Sans";
-        ctx.fillText(player.playerName.substring(0,4), player.posX+28, player.posY+105);
+        if(player.GOAT)
+          ctx.fillText(player.playerName.substring(0,7) + " 🐐", player.posX+28, player.posY+105);
+        else
+          ctx.fillText(player.playerName.substring(0,7), player.posX+28, player.posY+105);
       });
-    }
   }
 
   $(".play-image").mouseenter(function(){//game-controller animation on hover
