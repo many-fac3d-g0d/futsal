@@ -1,6 +1,6 @@
 const socket = io();
 
-var $heading, $loading, $stage, $subHeading, $terrain, $world, data, init;
+let $heading, $loading, $stage, $subHeading, $terrain, $world, data, init;
 
 $stage = null;
 
@@ -14,19 +14,19 @@ $subHeading = null;
 
 $loading = null;
 
-var canvas = $('#futsalCanvas')[0];
-var ctx = canvas.getContext('2d');
-var homePlayer = new Image();
-var homePlayer1 = new Image();
-var homePlayer2 = new Image();
+let canvas = $('#futsalCanvas')[0];
+let ctx = canvas.getContext('2d');
+let homePlayer = new Image();
+let homePlayer1 = new Image();
+let homePlayer2 = new Image();
 
-var awayPlayer = new Image();
-var awayPlayer1 = new Image();
-var awayPlayer2 = new Image();
+let awayPlayer = new Image();
+let awayPlayer1 = new Image();
+let awayPlayer2 = new Image();
 
-var goatPlayer = new Image();
-var goatPlayer1 = new Image();
-var goatPlayer2 = new Image();
+let goatPlayer = new Image();
+let goatPlayer1 = new Image();
+let goatPlayer2 = new Image();
 
 homePlayer.src = './public/img/home.png';
 homePlayer1.src = './public/img/home1.png';
@@ -124,6 +124,7 @@ let myJoyStick = {
         easing: 'spring'
       });
       $world.css('display', 'block');
+      
       anim.fadeInDir($heading, 300, delay + 600, 0, 30);
       anim.fadeInDir($subHeading, 300, delay + 800, 0, 30);
     }
@@ -143,7 +144,7 @@ let myJoyStick = {
       });
     },*/
      static switchSides() {
-      var delay, delayInc;
+      let delay, delayInc;
       delay = 0;
       delayInc = 20;
       state.swapSides();
@@ -189,7 +190,7 @@ let myJoyStick = {
       });
     }
      static fadeOutDir($el, dur, delay, deltaX, deltaY, deltaZ, easing, opacity) {
-      var display;
+      let display;
       if (deltaX == null) {
         deltaX = 0;
       }
@@ -288,7 +289,7 @@ let myJoyStick = {
     
       let randomNo = Math.floor(Math.random() * 10);
       homePlayers.forEach((player, index) => {
-        // reduce running animation speed by random draw
+        // TODO reduce running animation speed by random draw
           if(randomNo < 5){
             if(player.GOAT)
               ctx.drawImage(goatPlayer1, player.posX, player.posY, 80, 100);
@@ -391,7 +392,7 @@ let joystick = nipplejs.create(myJoyStick);
 console.log("My joystick ",joystick);
 joystick.on('move',(event, data) => {
   if('direction' in data){ //Prevent uncaught exceptions if direction attribute is not present on move
-    console.log("Dir ",data.direction.angle);
+    //console.log("Dir ",data.direction.angle);
     socket.emit('move', data.direction.angle, playerName, stadiumName, teamName);
   }
 });

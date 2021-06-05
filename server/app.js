@@ -92,7 +92,7 @@ class Player{
         }
     }
 
-    isGoat(){
+    isGoat(){//Easter egg 🥚
         if(this.playerName.toLowerCase() === 'messi' || this.playerName.toLowerCase() === 'viki')
             this.GOAT = true;
     }
@@ -146,7 +146,7 @@ class Stadium{
     }
 
     canGameStart(){
-        if(((this.homePlayers.length + this.awayPlayers.length) === 2) && !(this.gameOver)){
+        if(((this.homePlayers.length + this.awayPlayers.length) === 6) && !(this.gameOver)){
             this.gameStart = true;
             return this.gameStart;
         }
@@ -284,10 +284,10 @@ io.on('connection',(socket) => {
 
 });
 
-const timer = ms => new Promise(res => setTimeout(res, ms))
+//const timer = ms => new Promise(res => setTimeout(res, ms))
 
 setInterval(() =>{
-    activeStadiums.forEach(async (stad, index) =>{
+    activeStadiums.forEach((stad, index) =>{
         if(stad.canGameStart()){
             let circle = new SAT.Circle(new SAT.Vector(stad.ball.posX, stad.ball.posY), stad.ball.radius);
             let response = new SAT.Response(); 
@@ -312,7 +312,7 @@ setInterval(() =>{
             if(teamScored){
                 stad.ball.setInitialPos();
                 io.in(stad.name).emit('goal', stad, teamScored);
-                await timer(3000);
+                //setTimeout(() => {console.log('Waiting for 3 sec to restart after goal')},3000);
                 stad.lastTouch = 'N/A';
             }else{   
                 stad.ball.updateBall(collided);
