@@ -105,6 +105,7 @@ let myJoyStick = {
       } 
       , 0);*/
       $world.css('display', 'none');
+      $('#clock').css('display', 'none');
 
       $('main').velocity({
         opacity: 1
@@ -124,6 +125,7 @@ let myJoyStick = {
         easing: 'spring'
       });
       $world.css('display', 'block');
+      $('#clock').css('display', 'block');
       
       anim.fadeInDir($heading, 300, delay + 600, 0, 30);
       anim.fadeInDir($subHeading, 300, delay + 800, 0, 30);
