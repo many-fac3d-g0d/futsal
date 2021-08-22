@@ -1,6 +1,6 @@
 const socket = io();
 
-let $heading, $loading, $stage, $subHeading, $terrain, $world, data, init;
+let $heading, $loading, $stage, $subHeading, $terrain, $world;
 
 $stage = null;
 
@@ -234,7 +234,7 @@ let myJoyStick = {
     }
   };
 
-  init = function() {
+  let init = function() {
     $stage = $('.js-stage');
     $world = $('.js-world');
     $heading = $('.js-heading');
@@ -392,7 +392,7 @@ let myJoyStick = {
 
 let joystick = nipplejs.create(myJoyStick);
 console.log("My joystick ",joystick);
-joystick.on('move',(event, data) => {
+joystick.on('move',(event, data)=> {
   if('direction' in data){ //Prevent uncaught exceptions if direction attribute is not present on move
     //console.log("Dir ",data.direction.angle);
     socket.emit('move', data.direction.angle, playerName, stadiumName, teamName);

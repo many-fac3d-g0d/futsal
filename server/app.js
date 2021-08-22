@@ -146,7 +146,7 @@ class Stadium{
     }
 
     canGameStart(){
-        if(((this.homePlayers.length + this.awayPlayers.length) === 6) && !(this.gameOver)){
+        if(((this.homePlayers.length + this.awayPlayers.length) >= 2) && !(this.gameOver)){
             this.gameStart = true;
             return this.gameStart;
         }
