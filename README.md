@@ -12,11 +12,13 @@ npm start
 
 ## Live-Demo
 
-Play the game with your friends [here](http://futsalgame.herokuapp.com/)
+![futsal](./client/public/img/game.png)
+
+Play the game with your friends [here](https://futsal.onrender.com)
 
 ## ToDo
 
-1. Fix bugs
+1. Improve ball & player movement mechanics
 2. Improve performance
 3. Fix break in iOS safari
 
