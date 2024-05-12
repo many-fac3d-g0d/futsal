@@ -35,7 +35,7 @@ docker-compose down
 
 ![futsal](./client/public/img/game.png)
 
-Play the game with your friends online [here](https://futsal.onrender.com) (Render free tier instances go to sleep after inactivity and will cold started so wait for sometime for the instance to boot up ⌛)
+Play the game with your friends online [here](https://futsal.onrender.com) ( Wait for sometime for the free tier instance to boot up ⌛)
 
 ## ✅ToDo
 
