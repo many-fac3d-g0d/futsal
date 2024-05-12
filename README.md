@@ -3,11 +3,32 @@
 A 3v3 multiplayer football like game using websockets, nodejs, and jQuery
 
 ## Setup
-
 ```
-git clone
+git clone https://github.com/many-fac3d-g0d/futsal.git
+```
+### Using npm
+```
 npm install
 npm start
+```
+### Using Docker
+Build the docker image using Dockerfile locally
+```
+docker build -t futsal-local:1.0.0 --build-arg PORT=8000 .
+```
+Run the docker image
+```
+docker run -p 8000:8000 -d futsal-local:1.0.0
+```
+
+### Using Docker Compose
+Start the container
+```
+docker-compose up -d
+```
+Stop the container
+```
+docker-compose down
 ```
 
 ## Live-Demo
