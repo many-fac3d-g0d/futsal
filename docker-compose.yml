@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  futsal-app:
+    image: vigneshnandakumardev/futsal:1.0.0
+    container_name: futsal_app
+    ports:
+      - 8000:8000
